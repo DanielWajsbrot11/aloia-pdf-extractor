@@ -28,7 +28,6 @@ Return ONLY the JSON array, no other text or markdown formatting.`;
 }
 
 export function parseJsonRows(text: string): Record<string, unknown>[] {
-  // Try to find JSON array in the response
   const trimmed = text.trim();
 
   // Try direct parse first
@@ -39,15 +38,50 @@ export function parseJsonRows(text: string): Record<string, unknown>[] {
     // Try to extract JSON from markdown code block
     const match = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/);
     if (match) {
-      const parsed = JSON.parse(match[1].trim());
-      return Array.isArray(parsed) ? parsed : [parsed];
+      try {
+        const parsed = JSON.parse(match[1].trim());
+        return Array.isArray(parsed) ? parsed : [parsed];
+      } catch {
+        // Code block content may also be truncated, fall through
+      }
     }
-    // Try to find array brackets
+
+    // Try to find a complete JSON array
     const arrayMatch = trimmed.match(/\[[\s\S]*\]/);
     if (arrayMatch) {
-      const parsed = JSON.parse(arrayMatch[0]);
-      return Array.isArray(parsed) ? parsed : [parsed];
+      try {
+        const parsed = JSON.parse(arrayMatch[0]);
+        return Array.isArray(parsed) ? parsed : [parsed];
+      } catch {
+        // Array may be truncated, fall through
+      }
     }
+
+    // Handle truncated JSON — Claude hit max_tokens mid-array
+    // Find the start of the array, then salvage complete objects
+    const arrayStart = trimmed.indexOf("[");
+    if (arrayStart !== -1) {
+      let jsonStr = trimmed.slice(arrayStart);
+      // Remove any trailing incomplete object (after last '}')
+      const lastBrace = jsonStr.lastIndexOf("}");
+      if (lastBrace !== -1) {
+        jsonStr = jsonStr.slice(0, lastBrace + 1);
+        // Remove trailing comma if present
+        jsonStr = jsonStr.replace(/,\s*$/, "");
+        jsonStr += "]";
+        try {
+          const parsed = JSON.parse(jsonStr);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            console.warn(`Recovered ${parsed.length} rows from truncated Claude response`);
+            return parsed;
+          }
+        } catch {
+          // Could not recover
+        }
+      }
+    }
+
+    console.error("Claude raw response (first 500 chars):", trimmed.slice(0, 500));
     throw new Error("Could not parse JSON from Claude response");
   }
 }
