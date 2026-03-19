@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Aloia PDF Extractor – User Guide</title>
+<style>
+  @page {
+    size: A4;
+    margin: 2.5cm 2cm;
+    @bottom-center {
+      content: "Page " counter(page) " of " counter(pages);
+      font-size: 9pt;
+      color: #6B7280;
+    }
+    @bottom-right {
+      content: "Confidential";
+      font-size: 8pt;
+      color: #aaa;
+    }
+  }
+  @page :first {
+    margin-top: 0;
+    @bottom-center { content: none; }
+    @bottom-right { content: none; }
+  }
+  body {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.6;
+    color: #1a1a1a;
+  }
+  /* ---- Cover Page ---- */
+  .cover {
+    page-break-after: always;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    text-align: center;
+  }
+  .cover .brand-bar {
+    width: 120px;
+    height: 6px;
+    background: #534AB7;
+    border-radius: 3px;
+    margin-bottom: 40px;
+  }
+  .cover h1 {
+    font-size: 32pt;
+    font-weight: 700;
+    color: #171717;
+    margin: 0 0 8px;
+  }
+  .cover .subtitle {
+    font-size: 14pt;
+    color: #534AB7;
+    font-weight: 500;
+    margin-bottom: 50px;
+  }
+  .cover .meta {
+    font-size: 10pt;
+    color: #6B7280;
+    line-height: 2;
+  }
+  /* ---- Table of Contents ---- */
+  .toc {
+    page-break-after: always;
+  }
+  .toc h2 {
+    font-size: 18pt;
+    color: #534AB7;
+    border-bottom: 2px solid #534AB7;
+    padding-bottom: 6px;
+    margin-bottom: 20px;
+  }
+  .toc ol {
+    list-style: none;
+    padding: 0;
+    counter-reset: toc-counter;
+  }
+  .toc ol li {
+    counter-increment: toc-counter;
+    padding: 8px 0;
+    border-bottom: 1px dotted #E5E7EB;
+    font-size: 11pt;
+  }
+  .toc ol li::before {
+    content: counter(toc-counter) ". ";
+    font-weight: 600;
+    color: #534AB7;
+  }
+  .toc ol li a {
+    text-decoration: none;
+    color: #1a1a1a;
+  }
+  /* ---- Section Headers ---- */
+  h2 {
+    font-size: 16pt;
+    color: #534AB7;
+    border-bottom: 2px solid #534AB7;
+    padding-bottom: 4px;
+    margin-top: 32px;
+    margin-bottom: 12px;
+    page-break-after: avoid;
+  }
+  h3 {
+    font-size: 12pt;
+    color: #171717;
+    margin-top: 22px;
+    margin-bottom: 8px;
+    page-break-after: avoid;
+  }
+  h4 {
+    font-size: 10.5pt;
+    font-weight: 600;
+    color: #534AB7;
+    margin-top: 14px;
+    margin-bottom: 6px;
+  }
+  /* ---- Content ---- */
+  p { margin: 0 0 10px; }
+  ul, ol { margin: 0 0 10px; padding-left: 22px; }
+  li { margin-bottom: 4px; }
+  strong { color: #171717; }
+  code {
+    font-family: "Courier New", monospace;
+    font-size: 9.5pt;
+    background: #F3F4F6;
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+  pre {
+    background: #F3F4F6;
+    border: 1px solid #E5E7EB;
+    border-radius: 6px;
+    padding: 12px 16px;
+    font-size: 9pt;
+    line-height: 1.5;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+    margin: 8px 0 14px;
+    page-break-inside: avoid;
+  }
+  /* ---- Info / Warning Boxes ---- */
+  .note {
+    background: #F0EEFB;
+    border-left: 4px solid #534AB7;
+    padding: 10px 14px;
+    margin: 12px 0;
+    border-radius: 0 6px 6px 0;
+    font-size: 10pt;
+    page-break-inside: avoid;
+  }
+  .note strong { color: #534AB7; }
+  .warning {
+    background: #FEF3C7;
+    border-left: 4px solid #D97706;
+    padding: 10px 14px;
+    margin: 12px 0;
+    border-radius: 0 6px 6px 0;
+    font-size: 10pt;
+    page-break-inside: avoid;
+  }
+  .warning strong { color: #92400E; }
+  /* ---- Tables ---- */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0 16px;
+    font-size: 9.5pt;
+    page-break-inside: avoid;
+  }
+  th {
+    background: #534AB7;
+    color: #fff;
+    padding: 8px 10px;
+    text-align: left;
+    font-weight: 600;
+  }
+  td {
+    padding: 7px 10px;
+    border-bottom: 1px solid #E5E7EB;
+  }
+  tr:nth-child(even) td { background: #F9FAFB; }
+  /* ---- Steps ---- */
+  .step-num {
+    display: inline-block;
+    width: 26px;
+    height: 26px;
+    line-height: 26px;
+    text-align: center;
+    background: #534AB7;
+    color: #fff;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 12pt;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+  .step-title {
+    font-size: 12pt;
+    font-weight: 600;
+    vertical-align: middle;
+  }
+  hr {
+    border: none;
+    border-top: 1px solid #E5E7EB;
+    margin: 20px 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ COVER PAGE ============ -->
+<div class="cover">
+  <div class="brand-bar"></div>
+  <h1>Aloia PDF Extractor</h1>
+  <div class="subtitle">User Guide</div>
+  <div class="meta">
+    Version 1.0<br>
+    March 2026<br><br>
+    <strong>Classification:</strong> Internal Use Only
+  </div>
+</div>
+
+<!-- ============ TABLE OF CONTENTS ============ -->
+<div class="toc">
+  <h2>Table of Contents</h2>
+  <ol>
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#prerequisites">Prerequisites &amp; Installation</a></li>
+    <li><a href="#getting-started">Getting Started</a></li>
+    <li><a href="#step1">Step 1 – Define Extraction Fields</a></li>
+    <li><a href="#step2">Step 2 – Upload PDF Documents</a></li>
+    <li><a href="#step3">Step 3 – Review &amp; Download Results</a></li>
+    <li><a href="#crossref">Cross-Reference (VLOOKUP) Workflow</a></li>
+    <li><a href="#api">API Reference</a></li>
+    <li><a href="#configuration">Configuration &amp; Environment</a></li>
+    <li><a href="#troubleshooting">Troubleshooting</a></li>
+    <li><a href="#appendix">Appendix – Field Schema Examples</a></li>
+  </ol>
+</div>
+
+<!-- ============ 1. OVERVIEW ============ -->
+<h2 id="overview">1. Overview</h2>
+<p>
+  <strong>Aloia PDF Extractor</strong> is an AI-powered web application that extracts structured data from PDF
+  documents using Anthropic's Claude AI. It enables business users to define custom data fields, upload one
+  or more PDFs, and receive the extracted information as a downloadable CSV file.
+</p>
+<p>Key capabilities include:</p>
+<ul>
+  <li><strong>AI-Powered Extraction</strong> – Uses Claude Sonnet to intelligently read and interpret PDF content.</li>
+  <li><strong>Flexible Schema Definition</strong> – Define what to extract using a visual form builder, JSON schema, or plain English.</li>
+  <li><strong>Batch Processing</strong> – Upload and process multiple PDFs in a single operation.</li>
+  <li><strong>Cross-Reference / VLOOKUP</strong> – Match extracted data against a lookup dataset using fuzzy matching and export the enriched results.</li>
+  <li><strong>CSV Export</strong> – All results are downloadable as standard CSV files compatible with Excel, Google Sheets, and other tools.</li>
+</ul>
+
+<!-- ============ 2. PREREQUISITES ============ -->
+<h2 id="prerequisites">2. Prerequisites &amp; Installation</h2>
+
+<h3>System Requirements</h3>
+<table>
+  <tr><th>Requirement</th><th>Details</th></tr>
+  <tr><td>Runtime</td><td>Node.js 18 or later</td></tr>
+  <tr><td>Package Manager</td><td>npm (included with Node.js)</td></tr>
+  <tr><td>API Key</td><td>Valid Anthropic API key with access to Claude Sonnet</td></tr>
+  <tr><td>Browser</td><td>Any modern browser (Chrome, Edge, Firefox, Safari)</td></tr>
+</table>
+
+<h3>Installation</h3>
+<p>Clone the repository and install dependencies:</p>
+<pre>git clone &lt;repository-url&gt;
+cd aloia-pdf-extractor
+npm install</pre>
+
+<h3>Environment Configuration</h3>
+<p>Create a file named <code>.env.local</code> in the project root with the following content:</p>
+<pre>ANTHROPIC_API_KEY=your_api_key_here</pre>
+
+<div class="warning">
+  <strong>Security Notice:</strong> Never commit your API key to version control. The <code>.env.local</code>
+  file is excluded from Git by default. Store keys securely and rotate them according to your organization's
+  security policy.
+</div>
+
+<h3>Starting the Application</h3>
+<table>
+  <tr><th>Command</th><th>Description</th></tr>
+  <tr><td><code>npm run dev</code></td><td>Start in development mode (hot reload enabled)</td></tr>
+  <tr><td><code>npm run build</code></td><td>Create a production build</td></tr>
+  <tr><td><code>npm run start</code></td><td>Run the production build</td></tr>
+</table>
+<p>Once started, open <code>http://localhost:3000</code> in your browser.</p>
+
+<!-- ============ 3. GETTING STARTED ============ -->
+<h2 id="getting-started">3. Getting Started</h2>
+<p>
+  The application guides you through a step-by-step workflow. A progress indicator at the top of the
+  screen shows your current position. The basic extraction flow consists of three steps:
+</p>
+<ol>
+  <li><strong>Define Fields</strong> – Specify what data you want to extract.</li>
+  <li><strong>Upload PDFs</strong> – Provide the documents to process.</li>
+  <li><strong>Review Results</strong> – Preview and download the extracted data as CSV.</li>
+</ol>
+<p>An optional three-step extension enables cross-referencing extracted data against a second dataset (Steps 4–6).</p>
+
+<!-- ============ 4. STEP 1 ============ -->
+<h2 id="step1">4. Step 1 – Define Extraction Fields</h2>
+<p>
+  Before uploading documents, you must tell the application what data to extract. Three input modes are
+  available, accessible via tabs at the top of the form:
+</p>
+
+<h3>4.1 Field Builder (Recommended for Most Users)</h3>
+<p>
+  The visual form builder lets you add fields one at a time. For each field, provide:
+</p>
+<ul>
+  <li><strong>Field Name</strong> – The column header for this data point (e.g., <code>invoice_number</code>).</li>
+  <li><strong>Description / Hint</strong> – Guidance for the AI on where or how to find this value (e.g., <em>"Usually at the top right of the first page"</em>).</li>
+</ul>
+<p>Click <strong>Add Field</strong> to append a new field. Click the <strong>Remove</strong> button next to any field to delete it.</p>
+
+<h3>4.2 JSON Schema</h3>
+<p>For advanced users or automated workflows, paste a JSON array defining the fields:</p>
+<pre>[
+  { "name": "vendor_name", "description": "Company name of the vendor" },
+  { "name": "invoice_date", "description": "Date the invoice was issued" },
+  { "name": "total_amount", "description": "Total amount due" }
+]</pre>
+
+<h3>4.3 Natural Language</h3>
+<p>
+  Describe what you need in plain English. The AI will interpret your instructions and extract
+  accordingly. This mode is ideal for complex or variable documents.
+</p>
+<pre>Extract the invoice number, vendor name, invoice date,
+each line item with its description, quantity, unit price,
+and the total amount due.</pre>
+
+<div class="note">
+  <strong>Tip:</strong> Be as specific as possible with field descriptions. The more context you
+  provide, the more accurate the extraction results will be.
+</div>
+
+<!-- ============ 5. STEP 2 ============ -->
+<h2 id="step2">5. Step 2 – Upload PDF Documents</h2>
+<p>After defining your schema, proceed to the upload step:</p>
+<ul>
+  <li><strong>Drag and drop</strong> one or more PDF files onto the upload zone, or <strong>click</strong> to browse your file system.</li>
+  <li>The selected files are listed below the upload zone. Use the <strong>Remove</strong> button to deselect any file before processing.</li>
+  <li>Click <strong>Extract</strong> to begin processing.</li>
+</ul>
+<p>
+  A progress bar tracks the extraction. Processing time depends on the number and complexity of the
+  uploaded documents.
+</p>
+
+<div class="note">
+  <strong>Note:</strong> Each PDF is sent to the AI individually. The results from all documents are
+  merged into a single output CSV. A <code>_source_file</code> column identifies which PDF each row
+  originated from.
+</div>
+
+<!-- ============ 6. STEP 3 ============ -->
+<h2 id="step3">6. Step 3 – Review &amp; Download Results</h2>
+<p>Once extraction is complete, a preview table displays the first 20 rows of extracted data. From here you can:</p>
+<table>
+  <tr><th>Action</th><th>Description</th></tr>
+  <tr><td><strong>Download CSV</strong></td><td>Save the full dataset as a CSV file to your local machine.</td></tr>
+  <tr><td><strong>Cross-Reference</strong></td><td>Proceed to the cross-reference workflow (Steps 4–6) to match this data against a lookup dataset.</td></tr>
+  <tr><td><strong>Start Over</strong></td><td>Reset the application and begin a new extraction.</td></tr>
+</table>
+
+<!-- ============ 7. CROSS-REFERENCE ============ -->
+<h2 id="crossref">7. Cross-Reference (VLOOKUP) Workflow</h2>
+<p>
+  The cross-reference feature lets you match your extracted data against a second dataset — similar
+  to a VLOOKUP in spreadsheet applications. This is useful for enriching extracted records with data
+  from a reference source.
+</p>
+
+<h3><span class="step-num">4</span> <span class="step-title">Define &amp; Upload Lookup Data</span></h3>
+<p>
+  Define the schema for your lookup documents using the same three modes (Field Builder, JSON, or
+  Natural Language), then upload the lookup PDFs. The application extracts data from these documents
+  to create the lookup dataset.
+</p>
+
+<h3><span class="step-num">5</span> <span class="step-title">Configure the Match</span></h3>
+<p>Configure how the two datasets should be joined:</p>
+<ul>
+  <li><strong>Source Column</strong> – Select the column from your primary extraction to match on.</li>
+  <li><strong>Lookup Column</strong> – Select the corresponding column from the lookup dataset.</li>
+  <li><strong>Return Columns</strong> – Choose which columns from the lookup dataset to include in the output. Use <em>Select All</em> or <em>Clear</em> for convenience.</li>
+</ul>
+<p>Click <strong>Run Match</strong> to execute.</p>
+
+<h3><span class="step-num">6</span> <span class="step-title">Match Results</span></h3>
+<p>
+  The results table shows all matched rows. The match count is displayed above the table. Available actions:
+</p>
+<ul>
+  <li><strong>Download Matches CSV</strong> – Export the enriched dataset.</li>
+  <li><strong>Adjust Match</strong> – Return to Step 5 to modify matching criteria.</li>
+  <li><strong>Start Over</strong> – Reset the entire workflow.</li>
+</ul>
+
+<div class="note">
+  <strong>How Matching Works:</strong> The application performs case-insensitive substring matching.
+  A source value matches a lookup value if the source value is contained within the lookup value.
+  A single source row may match multiple lookup rows (one-to-many relationship).
+</div>
+
+<!-- ============ 8. API REFERENCE ============ -->
+<h2 id="api">8. API Reference</h2>
+<p>For integration and automation purposes, the application exposes two API endpoints.</p>
+
+<h3>8.1 POST /api/extract</h3>
+<p>Extracts structured data from uploaded PDFs.</p>
+<table>
+  <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+  <tr><td><code>pdfs</code></td><td>File[]</td><td>One or more PDF files (multipart/form-data)</td></tr>
+  <tr><td><code>schema</code></td><td>string</td><td>Field definitions or natural language instructions</td></tr>
+  <tr><td><code>mode</code></td><td>string</td><td>Schema type: <code>form</code>, <code>json</code>, or <code>nl</code></td></tr>
+</table>
+<p><strong>Response:</strong> <code>text/csv</code> – CSV content with extracted data.</p>
+
+<h3>8.2 POST /api/cross-reference</h3>
+<p>Performs fuzzy matching between two datasets.</p>
+<table>
+  <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+  <tr><td><code>sourceRows</code></td><td>Object[]</td><td>Array of source data objects</td></tr>
+  <tr><td><code>lookupRows</code></td><td>Object[]</td><td>Array of lookup data objects</td></tr>
+  <tr><td><code>sourceCol</code></td><td>string</td><td>Column name to match from source</td></tr>
+  <tr><td><code>lookupCol</code></td><td>string</td><td>Column name to match in lookup</td></tr>
+  <tr><td><code>returnCols</code></td><td>string[]</td><td>Columns to include from lookup</td></tr>
+</table>
+<p><strong>Request format:</strong> <code>application/json</code></p>
+<p><strong>Response:</strong> <code>text/csv</code> – CSV with matched and enriched records.</p>
+
+<!-- ============ 9. CONFIGURATION ============ -->
+<h2 id="configuration">9. Configuration &amp; Environment</h2>
+
+<h3>Environment Variables</h3>
+<table>
+  <tr><th>Variable</th><th>Required</th><th>Description</th></tr>
+  <tr><td><code>ANTHROPIC_API_KEY</code></td><td>Yes</td><td>API key for authenticating with the Anthropic Claude API</td></tr>
+</table>
+
+<h3>AI Model</h3>
+<p>
+  The application uses <strong>Claude Sonnet 4.6</strong> (<code>claude-sonnet-4-6-20250514</code>) for
+  document analysis. The maximum output token limit is set to <strong>16,384 tokens</strong> per request.
+</p>
+
+<h3>Project Structure</h3>
+<pre>aloia-pdf-extractor/
+├── app/
+│   ├── api/
+│   │   ├── extract/route.ts         # Extraction endpoint
+│   │   └── cross-reference/route.ts # Cross-reference endpoint
+│   ├── page.tsx                     # Application entry point
+│   ├── layout.tsx                   # Root layout
+│   └── globals.css                  # Global styles
+├── components/
+│   ├── PDFExtractor.tsx             # Main workflow component
+│   ├── SchemaBuilder.tsx            # Field definition UI
+│   └── MatchConfigurator.tsx        # Cross-reference configuration
+├── lib/
+│   ├── pdfExtractor.ts             # Prompt building &amp; parsing
+│   └── fuzzyMatch.ts               # Matching logic
+├── .env.local                       # Environment variables (not in Git)
+└── package.json</pre>
+
+<!-- ============ 10. TROUBLESHOOTING ============ -->
+<h2 id="troubleshooting">10. Troubleshooting</h2>
+
+<table>
+  <tr><th>Issue</th><th>Possible Cause</th><th>Resolution</th></tr>
+  <tr>
+    <td>Extraction returns an error</td>
+    <td>Invalid or missing API key</td>
+    <td>Verify <code>ANTHROPIC_API_KEY</code> is set correctly in <code>.env.local</code> and restart the server.</td>
+  </tr>
+  <tr>
+    <td>Empty or incomplete results</td>
+    <td>Vague field descriptions</td>
+    <td>Provide more specific descriptions or hints for each field. Use natural language mode for complex documents.</td>
+  </tr>
+  <tr>
+    <td>Cross-reference returns no matches</td>
+    <td>No substring overlap between source and lookup values</td>
+    <td>Verify that the selected columns contain comparable data. The match is case-insensitive and uses substring containment.</td>
+  </tr>
+  <tr>
+    <td>Application fails to start</td>
+    <td>Missing dependencies</td>
+    <td>Run <code>npm install</code> and ensure Node.js 18+ is installed.</td>
+  </tr>
+  <tr>
+    <td>Large PDF processing is slow</td>
+    <td>Document complexity / API latency</td>
+    <td>Consider splitting very large PDFs into smaller sections before uploading.</td>
+  </tr>
+  <tr>
+    <td>CSV has unexpected formatting</td>
+    <td>Special characters in extracted data</td>
+    <td>The application handles CSV escaping automatically. If issues persist, check the source PDF content.</td>
+  </tr>
+</table>
+
+<!-- ============ 11. APPENDIX ============ -->
+<h2 id="appendix">11. Appendix – Field Schema Examples</h2>
+
+<h3>Invoice Processing</h3>
+<pre>[
+  { "name": "invoice_number", "description": "Unique invoice identifier" },
+  { "name": "vendor_name", "description": "Name of the issuing vendor/company" },
+  { "name": "invoice_date", "description": "Date the invoice was issued (YYYY-MM-DD)" },
+  { "name": "due_date", "description": "Payment due date" },
+  { "name": "line_item", "description": "Description of each line item" },
+  { "name": "quantity", "description": "Quantity for each line item" },
+  { "name": "unit_price", "description": "Unit price for each line item" },
+  { "name": "total_amount", "description": "Grand total amount due" }
+]</pre>
+
+<h3>Employee Records</h3>
+<pre>[
+  { "name": "employee_id", "description": "Employee ID number" },
+  { "name": "full_name", "description": "Employee full name" },
+  { "name": "department", "description": "Department or division" },
+  { "name": "job_title", "description": "Current job title or role" },
+  { "name": "start_date", "description": "Employment start date" },
+  { "name": "salary", "description": "Annual salary or compensation" }
+]</pre>
+
+<h3>Contract Review (Natural Language)</h3>
+<pre>Extract the following from each contract document:
+- Party names (all signatories)
+- Effective date and termination date
+- Contract value or total consideration
+- Key obligations for each party
+- Governing law jurisdiction
+- Any renewal or termination clauses</pre>
+
+<hr>
+<p style="text-align:center; color:#6B7280; font-size:9pt; margin-top:30px;">
+  Aloia PDF Extractor – User Guide v1.0 | March 2026 | Internal Use Only
+</p>
+
+</body>
+</html>
