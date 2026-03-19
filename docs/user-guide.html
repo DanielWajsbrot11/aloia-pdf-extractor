@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aloia PDF Extractor — User Guide</title>
+<style>
+  @page { margin: 1in; size: letter; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #1a1a1a; line-height: 1.6; padding: 60px 72px; max-width: 850px; margin: 0 auto; }
+  .header { border-bottom: 3px solid #0f172a; padding-bottom: 20px; margin-bottom: 36px; }
+  .header h1 { font-size: 26px; font-weight: 700; color: #0f172a; letter-spacing: -0.5px; }
+  .header p.subtitle { font-size: 14px; color: #64748b; margin-top: 4px; }
+  .section { margin-bottom: 32px; }
+  .section h2 { font-size: 16px; font-weight: 700; color: #0f172a; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid #e2e8f0; }
+  .section p { font-size: 14px; color: #334155; margin-bottom: 10px; }
+  .steps { list-style: none; padding: 0; }
+  .steps li { display: flex; align-items: flex-start; margin-bottom: 16px; }
+  .step-number { flex-shrink: 0; width: 28px; height: 28px; background: #0f172a; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; margin-right: 14px; margin-top: 1px; }
+  .step-content h3 { font-size: 14px; font-weight: 600; color: #0f172a; margin-bottom: 2px; }
+  .step-content p { font-size: 13px; color: #475569; margin: 0; }
+  .phase-label { font-size: 12px; font-weight: 700; color: #0f172a; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 14px; margin-top: 4px; background: #f1f5f9; display: inline-block; padding: 4px 10px; border-radius: 4px; }
+  .notes { background: #f8fafc; border-left: 3px solid #0f172a; padding: 14px 18px; border-radius: 0 6px 6px 0; }
+  .notes ul { list-style: none; padding: 0; }
+  .notes ul li { font-size: 13px; color: #475569; margin-bottom: 6px; padding-left: 16px; position: relative; }
+  .notes ul li::before { content: "—"; position: absolute; left: 0; color: #94a3b8; }
+  .notes ul li:last-child { margin-bottom: 0; }
+  .footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid #e2e8f0; font-size: 11px; color: #94a3b8; text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Aloia PDF Extractor</h1>
+  <p class="subtitle">User Guide &mdash; AI-Powered PDF Data Extraction &amp; Cross-Referencing</p>
+</div>
+
+<div class="section">
+  <h2>What It Does</h2>
+  <p>Aloia PDF Extractor uses AI to read PDF documents and convert their contents into clean, structured data. Upload any PDF, define the fields you need, and receive a downloadable CSV file. Optionally, match records across two datasets using built-in fuzzy matching.</p>
+</div>
+
+<div class="section">
+  <h2>How to Use</h2>
+
+  <div class="phase-label">Phase 1 &mdash; Extract Data</div>
+  <ol class="steps">
+    <li>
+      <div class="step-number">1</div>
+      <div class="step-content">
+        <h3>Define Your Fields</h3>
+        <p>Specify the data you need extracted. Use the Form Builder to add fields, paste a JSON schema, or describe what you need in plain English.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-number">2</div>
+      <div class="step-content">
+        <h3>Upload PDFs</h3>
+        <p>Drag and drop one or more PDF files, or click to browse. Multiple documents can be processed at once.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-number">3</div>
+      <div class="step-content">
+        <h3>Review &amp; Download</h3>
+        <p>View extracted data in a table preview, then download as CSV. Compatible with Excel, Google Sheets, and other data tools.</p>
+      </div>
+    </li>
+  </ol>
+
+  <div class="phase-label">Phase 2 &mdash; Cross-Reference (Optional)</div>
+  <ol class="steps">
+    <li>
+      <div class="step-number">4</div>
+      <div class="step-content">
+        <h3>Upload a Lookup Dataset</h3>
+        <p>Define a second schema and upload reference PDFs to create a lookup dataset.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-number">5</div>
+      <div class="step-content">
+        <h3>Configure Matching</h3>
+        <p>Select which columns to match on and which lookup fields to include in the output.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-number">6</div>
+      <div class="step-content">
+        <h3>Download Matched Results</h3>
+        <p>View matched records and download the combined results as CSV.</p>
+      </div>
+    </li>
+  </ol>
+</div>
+
+<div class="section">
+  <h2>Key Details</h2>
+  <div class="notes">
+    <ul>
+      <li>Each row includes a source file reference so you can trace data back to its origin document.</li>
+      <li>Matching is case-insensitive — exact formatting across datasets is not required.</li>
+      <li>All outputs are CSV format, ready for use in any spreadsheet or data application.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="footer">
+  Aloia Aerospace &mdash; Aloia PDF Extractor &mdash; Internal Documentation
+</div>
+
+</body>
+</html>
